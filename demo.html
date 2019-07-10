@@ -84,9 +84,9 @@
     </div>
 </div>
 <input type="hidden" id="angentId">
-<script type="text/javascript" src="./js/jquery-1.6.2.min.js"></script>
-<script type="text/javascript" src="./js/cropper.js?v=1.1.1"></script>
-<script type="text/javascript" src="./js/html2canvas.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="js/cropper.js?v=1.1.1"></script>
+<script type="text/javascript" src="js/html2canvas.js"></script>
 
 <script type="text/javascript" src="../gexian/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript" src="../gexian/js/shareGroup.js"></script>
@@ -175,7 +175,7 @@
                         //<img class="share-btn" src="./images/show_icon.png"><img class="save_icon" src="./images/save_icon.png">
                         // $("#photo").html('<img src="'+imgUri+'" width="100%"><img class="share-btn" src="./images/show.png"><div class="save_icon"></div>');
 
-                        $("#planImg").after('<img class="share-btn" src="./images/show.png"><div class="save_icon"></div>')
+                        $("#planImg").after('<img class="share-btn" src="images/show.png"><div class="save_icon"></div>')
                         $("#angentId").val(data.responseObject);
                         share=data.responseObject;
                         shareFun(share);
