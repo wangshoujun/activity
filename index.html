@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>中韩人寿</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+    <link href="css/cropper.css" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+<body data-ext-version="1.4.5" style="font-size: 12px;">
+<div>
+    <div id="company-twelve-container">
+        <div id="photo">
+            <div class="one_part" >
+                <img src="images/firstIcon.png" alt="">
+                <div class="start-btn"></div>
+            </div>
+            <div class="two-part" style='display:none;'>
+                <div class="two-content">
+                    <img id="canvasImg" class="cropper-img" width="505" height="693">
+                    <img class="cropper-box false" src="images/photo_cover1.png" alt="">
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="am-modal" style="display: none">
+    <div>
+        <div class="am-modal-mask"></div>
+        <div class="am-modal-wrap " role="dialog">
+            <div role="document" class="am-modal photo-modal am-modal-transparent">
+                <div class="am-modal-content">
+                    <div class="am-modal-body">
+                        <div class="photo-view">
+                            <img id="crop" src="" style="display: none;">
+                        </div>
+                        <div class="btn-box">
+                            <a role="button" class="am-button photo-btn icon-xuanzhuan" id="rotateLeft"></a>
+                            <a role="button" class="am-button photo-btn icon-xuanzhuan1" id="rotateRight"></a>
+                            <div class="am-image-picker image-picker ">
+                                <div class="am-image-picker-list" role="group">
+                                    <div class="am-flexbox am-flexbox-align-center">
+                                        <div class="am-flexbox-item">
+                                            <div class="am-image-picker-item am-image-picker-upload-btn icon-jiahao1" role="button"
+                                                 aria-label="Choose and add image">
+                                                <input type="file" id="imgFile" accept="image/jpeg,image/jpg,image/png">
+                                            </div>
+                                        </div>
+                                        <div class="am-flexbox-item"></div>
+                                        <div class="am-flexbox-item"></div>
+                                        <div class="am-flexbox-item"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a role="button" class="am-button photo-btn icon-guanbi1" id="close"></a>
+                            <a role="button" class="am-button photo-btn icon-xuanze" id="clure"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="angentId">
+<script type="text/javascript" src="./js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="./js/cropper.js"></script>
+<script type="text/javascript" src="./js/html2canvas.js"></script>
+
+<script>
+    $(".one_part img,.two-part").width(document.body.clientWidth)
+    $(".one_part img,.two-part").height(document.body.clientHeight)
+
+    var share="";
+    if(getUrlParam("imgId")!=""&&getUrlParam("imgId")!=null){
+        $.ajax({
+            async: false,
+            type: "POST",
+            dataType: "JSON",
+            url: getIp()+"/api/share/getPhoto",
+            data: {id:getUrlParam("imgId")},
+            success:function (data) {
+                $("#angentId").val(getUrlParam("imgId"));
+                $("#photo").html('<img src="'+data.responseObject+'" width="100%">')
+            }
+        })
+    }
+
+
+    $(".start-btn").click(function () {
+        $("#am-modal").show();
+        $("#crop").hide();
+        //关闭
+        $("#close").click(function () {
+            $("#am-modal").hide();
+        });
+    });
+    $("#imgFile").change(function (e) {
+        var file = e.target.files[0];
+        //实例化FileReader API  
+        var freader = new FileReader();
+        freader.readAsDataURL(file);
+        freader.onload = function (e) {
+            $("#crop").attr("src", freader.result);  //显示图片
+            $('#crop').show();
+            cropperImg()
+        }
+    });
+
+    function cropperImg() {
+        var image = document.getElementById("crop");
+        var options= {
+            aspectRatio: 62 / 100,  //宽高比
+            dragMode: 'move',
+            viewMode:1, //cropper的视图模式
+            restore: false,
+            guides: false,
+            center: false,
+            highlight: false,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            toggleDragModeOnDblclick: false,
+            resizable: false,  //是否允许改变裁剪框的大小
+        }
+        //可以通过$().cropper(options)方法来设置参数。如果想改变全局默认参数，可以使用$.fn.cropper.setDefaults(options)方法。
+        var cropper = new Cropper(image,options);
+
+        //
+        $("#clure").click(function () {
+
+            $("#am-modal").hide();
+            $(".two-part").show();
+            $(".one_part").hide();
+            var t = (cropper && cropper.getCroppedCanvas()).toDataURL("image/png");
+                $("#canvasImg").attr("src",t);
+
+            // return
+            html2canvas($("#photo")[0]).then(function(canvas){
+                var imgUri = canvas.toDataURL();
+                $("#photo").html('<img id="planImg" src="'+imgUri+'" width="100%">');
+                var liu=imgUri.split(",")
+                $.ajax({
+                    type: "POST",
+                    dataType: "JSON",
+                    url:getIp()+ "/api/share/photo",
+                    data: JSON.stringify({liu:liu[1], fileName:"123.png"}),
+                    success:function (data) {
+                        console.log();
+                        //<img class="share-btn" src="./images/show_icon.png"><img class="save_icon" src="./images/save_icon.png">
+                        // $("#photo").html('<img src="'+imgUri+'" width="100%"><img class="share-btn" src="./images/show.png"><div class="save_icon"></div>');
+
+                        $("#planImg").after('<img class="share-btn" src="./images/show.png"><div class="save_icon"></div>')
+                        $("#angentId").val(data.responseObject);
+                        share=data.responseObject;
+                        // shareFun(share);
+                    }
+                })
+            })
+
+        });
+        //左旋转
+        $("#rotateLeft").click(function () {
+            cropper.rotate(-90)
+        });
+        //关闭
+        $("#close").click(function () {
+            // cropper.destroy();
+            // cropper = null;
+            $("#am-modal").hide();
+        });
+        //右旋转
+        $("#rotateRight").click(function () {
+            cropper.rotate(90)
+        });
+
+    }
+
+
+    function shareFun(str) {
+        //   分享
+        var shareUrl = getIp() + "/Activity/demo.html?imgId="+str//$("#angentId").val();
+        var imageUrl = getIp() + "/Activity/images/firstIcon.png";
+        var content = "秀出你的专属封面";
+        var title = "中韩人寿";
+
+        wxShare(shareUrl, imageUrl, content, title,"");
+    }
+
+    function getIp() {
+        return "https://weixinuat.sinokorealife.com.cn/wechatweb";
+    }
+    //获取url 参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = encodeURI(window.location.search).substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]);
+        return null; //返回参数值
+    }
+
+</script>
+</body>
+</html>
